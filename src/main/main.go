@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 // Cat Type
@@ -30,6 +31,10 @@ type Hamster struct {
 
 func helloo(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello From web server echo")
+}
+
+func mainadm(c echo.Context) error {
+	return c.String(http.StatusOK, "Hello From Admin!!")
 }
 
 func addCat(c echo.Context) error {
@@ -112,6 +117,13 @@ func main() {
 	fmt.Println("Hello World!!")
 	e := echo.New()
 
+	g := e.Group("/admin")
+
+	g.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: `[${time_rfc3339} ${status} ${remote_ip} ${method} ${host} ${path} ${latency_human} ]` + "\n",
+	}))
+
+	g.GET("/main", mainadm)
 	e.GET("/", helloo)
 	e.GET("/cats/:data", getCats)
 	e.POST("/cats", addCat)
