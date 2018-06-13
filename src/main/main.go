@@ -16,6 +16,18 @@ type Cat struct {
 	Type string `json:"type"`
 }
 
+// Dog Type
+type Dog struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
+// Hamster Type
+type Hamster struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
 func helloo(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello From web server echo")
 }
@@ -40,6 +52,38 @@ func addCat(c echo.Context) error {
 	log.Printf("This is your cat: %#v ", cat)
 
 	return c.String(http.StatusOK, "We got your cat!!")
+
+}
+
+func addDog(c echo.Context) error {
+	dog := Dog{}
+
+	defer c.Request().Body.Close()
+	err := json.NewDecoder(c.Request().Body).Decode(&dog)
+	if err != nil {
+		log.Printf("Failed Processing addDog: %s", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+
+	log.Printf("This is your dog: %#v ", dog)
+
+	return c.String(http.StatusOK, "We got your dog!!")
+
+}
+
+func addHamster(c echo.Context) error {
+	hamster := Hamster{}
+
+	err := c.Bind(&hamster)
+
+	if err != nil {
+		log.Printf("Failed Processing addDog: %s", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+
+	log.Printf("This is your hamster: %#v ", hamster)
+
+	return c.String(http.StatusOK, "We got your hamster!!")
 
 }
 
@@ -71,5 +115,7 @@ func main() {
 	e.GET("/", helloo)
 	e.GET("/cats/:data", getCats)
 	e.POST("/cats", addCat)
+	e.POST("/dogs", addDog)
+	e.POST("/hams", addHamster)
 	e.Start(":8080")
 }
